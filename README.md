@@ -59,7 +59,7 @@ Security and data integrity are treated as architectural cornerstones. A central
 - [x] **Phase 1: Core Offline MVP** - Database, CRUD, UI/UX, and geospatial calculations (Completed).
 - [x] **Phase 2: On-Device PDF Reporting** - PDF report generation with data range selection (Completed).
 - [x] **Phase 3: SaaS Layer & Auditing Cloud Sync** - Bi-directional cloud synchronization of the on-device "Black Box" data trail, user authentication, and recurring subscription models.
-- [ ] **Phase 4: Bug fix and features.
+- [ ] **Phase 4: Bug fix and features**.
 
 ## Contact & Opportunities
 I am a Software Engineer specializing in .NET MAUI, C#, and auditable system architectures. I am currently open to international remote opportunities or strategic partnerships for this product.
