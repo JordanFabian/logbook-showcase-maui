@@ -5,43 +5,51 @@
 > **Note on Proprietary Software:** This repository serves as a technical showcase and architectural overview. The full source code is part of a proprietary commercial project. For technical evaluations, live demonstrations, or partnership inquiries, please contact me directly.
 
 ## Overview
-LogbookApp is a high-performance, cross-platform mobile application engineered specifically for the aviation industry. It solves the critical problem of manual flight logging by automating flight time calculations and providing a robust, offline-first environment for pilots to manage their aeronautical data.
+LogbookApp is a high-performance, cross-platform mobile SaaS engineered specifically for the aviation industry. It solves the critical problem of manual flight logging by automating complex flight time calculations, generating official auditable documents, and providing a robust, offline-first environment for pilots to manage their aeronautical data.
 
-Currently, the core offline engine (MVP) is 100% complete and fully functional, while the Cloud/SaaS synchronization layer is in the final stages of development.
+Currently, both the core offline engine and the Cloud/SaaS synchronization layer are fully operational, delivering an enterprise-grade experience from the remote hangar to the cloud.
 
 ## Key Technical & Architectural Features
 
-### 1. Offline-First Architecture & Data Management
-Aviation requires software that works flawlessly in airplane mode or remote hangars. LogbookApp implements a robust local data layer:
-* **Secured Multi-Tiered Access:** Secured by a cloud login and a dedicated offline numeric PIN flow to protect sensitive data on the device.
-* **Engineered Local SQLite:** Highly optimized database structure to manage datasets of over **4,000 official ANAC (Brazilian Civil Aviation Agency) airport records**.
-* **Zero UI Blocking:** Implemented asynchronous search and CRUD operations using the MVVM pattern to ensure a fluid interface regardless of database load.
+### 1. Offline-First Architecture & Encrypted Data Management
+Aviation requires software that works flawlessly in airplane mode. LogbookApp implements a highly secure, offline-capable local data layer:
+* **AES-Encrypted Local SQLite:** The on-device database is fully encrypted using dynamic session keys, protecting sensitive pilot data and preventing unauthorized local extraction.
+* **Bi-Directional Cloud Sync:** A resilient background service (`SyncService`) securely communicates with an ASP.NET Core API via JWT, syncing flight logs and fleet data only when a stable connection is detected.
+* **Large Dataset Handling:** Highly optimized database structure to instantly query over **4,000 official ANAC (Brazilian Civil Aviation Agency) airport records** without blocking the UI thread.
 
-### 2. Geospatial Engineering & Automated Reporting
-* **Intelligent Flight Planning:** The automated "New Flight" creation flow uses aircraft performance data to provide real-time distance and estimated flight time calculations between ICAO codes.
-* **Automatic Day/Night Division:** The algorithm uses local time and geographic coordinates to automatically compute the division between day and night flight hours.
-* **Haversine Formula Implementation:** A central engineering feature used to compute exact spherical distances between airports on a device, ensuring high accuracy for flight time predictions.
-* **METAR/TAF Integration:** The app retrieves and displays meteorological reports for origin and destination aerodromes on-device when online.
+### 2. Aviation Engineering & Physics Algorithms
+* **Dynamic Weight & Balance (W&B) Engine:** Calculates Center of Gravity (CG) in real-time based on customizable passenger/cargo stations and the specific aircraft envelope. Includes visual MTOW (Maximum Takeoff Weight) warnings to prevent overloading.
+* **Smart Maintenance Tracking (CTM):** Automatically monitors total airframe hours against overhaul triggers, visually flagging aircraft status (Available, Maintenance Alert, or Grounded/AOG) in the digital hangar.
+* **Haversine Formula & Flight Planning:** Uses aircraft performance metrics (cruising speed) and exact spherical distances between ICAO coordinates to provide real-time estimated flight times.
+* **Human-Readable METAR Translator:** Retrieves raw meteorological strings from external APIs and parses them into easily readable, decoded formats for quick line-of-flight assessment.
 
-### 3. Native Gestures & UX
-* **MVVM Implementation:** Strictly follows the Model-View-ViewModel pattern for a clean, testable codebase.
+### 3. Native Gestures, UX & Official Reporting
+* **QuestPDF Generation:** Includes native stream handling utilizing the QuestPDF engine to export pixel-perfect, ANAC-standard Logbook Reports (CIV) directly from the device.
 * **High-Fidelity Interaction:** Implements native-feeling physics-based swipe-to-delete/edit gestures on the main list, providing immediate, fluid user feedback.
-* **Data Capture:** Features rich data entry capabilities, including on-device receipt photography and native signature capture.
-* **CSV/PDF Export:** Includes native stream handling to export auditable reports in CSV or PDF formats directly from the device.
+* **Rich Data Capture:** Features digital signature capture for instructor endorsements and on-device receipt photography.
 
 ### 4. Enterprise-Grade Security & Non-Destructive Auditing (ANAC Compliance)
 Security and data integrity are treated as architectural cornerstones. A central tenet is **non-destructive data handling**.
-* **The "Black Box" Audit Trail:** Even when the UI presents deletion or edit confirmations, the underlying database does not physically remove records. The system utilizes **soft-deletes** and maintains a dedicated 'Audit Log' (the 'Black Box'). All original flight data remains preserved on the device (and soon to the cloud) for ANAC audit compliance, regardless of pilot modifications.
+* **The "Black Box" Audit Trail:** The system utilizes **soft-deletes** and maintains a dedicated 'Audit Log'. All original flight data remains preserved on the device and cloud for ANAC audit compliance, regardless of pilot modifications.
 * **Enforced Editing Rationale:** An 'Edit' workflow cannot be finalized until the pilot inputs a justificative reason, ensuring a clear, auditable trail of change for every modified signed record.
-* **Input Sanitization:** Heavy input validation and sanitization are applied across all forms to prevent common injection attacks in the local database.
+* **Input Sanitization:** Heavy input validation and algorithmic sanitization are applied across all forms to prevent injection attacks and ensure database integrity.
 
 ## Tech Stack
+**Frontend (Mobile App):**
 * **Framework:** .NET MAUI / C# / XAML
-* **Architecture:** MVVM (Model-View-ViewModel)
-* **Local Database:** SQLite
-* **Geospatial & ETL:** Haversine Algorithms, Apache Hop pipeline for ANAC data import
-* **Data Science Tools:** Python for exploratory data analysis
-* **Target Platforms:** Android, iOS (Cross-platform)
+* **Architecture:** strict MVVM (Model-View-ViewModel)
+* **Local Database:** Encrypted SQLite (AES)
+* **Reporting:** QuestPDF
+
+**Backend (Cloud SaaS):**
+* **Framework:** ASP.NET Core Web API
+* **ORM:** Entity Framework Core (EF Core)
+* **Database:** PostgreSQL
+* **Security:** JWT Authentication, BCrypt Password Hashing
+
+**Data Engineering:**
+* **Geospatial:** Haversine Algorithms
+* **Pipeline:** Apache Hop & Python for official ANAC aeronautical data import
 
 ## Workflow & Architectural Showcase
 
@@ -56,10 +64,11 @@ Security and data integrity are treated as architectural cornerstones. A central
 
 
 ## Current Development Status
-- [x] **Phase 1: Core Offline MVP** - Database, CRUD, UI/UX, and geospatial calculations (Completed).
-- [x] **Phase 2: On-Device PDF Reporting** - PDF report generation with data range selection (Completed).
-- [x] **Phase 3: SaaS Layer & Auditing Cloud Sync** - Bi-directional cloud synchronization of the on-device "Black Box" data trail, user authentication, and recurring subscription models (Completed).
-- [ ] **Phase 4: Bug fix and features**.
+- [x] **Phase 1: Core Offline MVP** - Database, CRUD, UI/UX, and geospatial calculations.
+- [x] **Phase 2: On-Device PDF Reporting** - Official PDF report generation using QuestPDF.
+- [x] **Phase 3: SaaS Layer & Cloud Sync** - Bi-directional synchronization, JWT authentication, and PostgreSQL backend implementation.
+- [x] **Phase 4: Aviation Physics Integration** - Dynamic Weight & Balance calculator and Maintenance (CTM) tracking.
+- [ ] **Phase 5: Feature Expansion & Monetization** - Enterprise subscription tiers and automated day/night split algorithms.
 
 ## Contact & Opportunities
 I am a Software Engineer specializing in .NET MAUI, C#, and auditable system architectures. I am currently open to international remote opportunities or strategic partnerships for this product.
