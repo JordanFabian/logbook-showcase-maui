@@ -416,3 +416,36 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# 1. Bancos de Dados Locais (Evita o vazamento do SQLite criptografado dos pilotos)
+*.db
+*.db3
+*.sqlite
+*.sqlite3
+Logbook_Secure.db3
+
+# 2. Segredos e Configurações da API na Nuvem
+# Ignora configurações locais que possuem sua Connection String do PostgreSQL e JWT Secret
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+
+# 3. Chaves de Assinatura Mobile (Obrigatório para segurança nas Lojas)
+# Impede que as chaves de publicação do Android e iOS vazem no repositório público/privado
+*.keystore
+*.jks
+*.p12
+*.cer
+*.mobileprovision
+*.xcent
+
+# 4. Artefatos de Exportação (QuestPDF)
+# Ignora as Cadernetas de Voo (CIV) em PDF geradas durante testes locais
+*.pdf
+CIV_*.pdf
+
+# 5. Lixo de Sistema Operacional (Caso a equipe use Mac para compilar para iOS)
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
