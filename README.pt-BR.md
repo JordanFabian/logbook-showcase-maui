@@ -1,77 +1,77 @@
-# LogbookApp: SaaS de Aviação Offline-First (Showcase)
-
-*Leia em outros idiomas: [English](README.md), [Português](README.pt-BR.md).*
-
-> **Nota sobre Software Proprietário:** Este repositório serve como um portfólio técnico e uma visão geral da arquitetura. O código-fonte completo faz parte de um projeto comercial proprietário. Para avaliações técnicas, demonstrações ao vivo ou propostas de parceria, por favor, entre em contato diretamente.
+> **Nota sobre Software Proprietário:** Este repositório serve como uma demonstração técnica e visão geral da arquitetura. O código-fonte completo faz parte de um projeto comercial proprietário. Para avaliações técnicas, demonstrações ao vivo ou propostas de parceria, por favor, entre em contato diretamente.
 
 ## Visão Geral
-O LogbookApp é um SaaS móvel multiplataforma de alto desempenho, projetado especificamente para a indústria da aviação. Ele resolve o problema crítico do registro manual de voos automatizando cálculos complexos de tempo de voo, gerando documentos oficiais auditáveis e fornecendo um ambiente robusto e *offline-first* para que os pilotos gerenciem seus dados aeronáuticos.
+O LogbookApp (FlightHangar) é um SaaS mobile multiplataforma de alta performance projetado especificamente para a indústria da aviação. Ele resolve o problema crítico do registro manual de voos automatizando cálculos complexos de tempo de voo, gerando documentos oficiais auditáveis e fornecendo um ambiente robusto e *offline-first* para os pilotos gerenciarem seus dados aeronáuticos.
 
-Atualmente, tanto o motor offline central quanto a camada de sincronização em nuvem/SaaS estão totalmente operacionais, entregando uma experiência de nível corporativo, desde o hangar sem internet até a nuvem.
+Atualmente, tanto o motor *offline* principal quanto a camada de sincronização Cloud/SaaS estão totalmente operacionais, entregando uma experiência de nível corporativo do hangar remoto até a nuvem, repleta de automação, telemetria e recursos estritos de *compliance*.
 
 ## Principais Funcionalidades Técnicas e Arquiteturais
 
-### 1. Arquitetura Offline-First & Gerenciamento de Dados Criptografados
-A aviação exige softwares que funcionem perfeitamente em modo avião. O LogbookApp implementa uma camada de dados local altamente segura e com capacidade offline:
-* **SQLite Local Criptografado (AES):** O banco de dados no dispositivo é totalmente criptografado usando chaves de sessão dinâmicas, protegendo os dados sensíveis do piloto e impedindo a extração local não autorizada.
-* **Sincronização em Nuvem Bidirecional:** Um serviço em segundo plano resiliente (`SyncService`) se comunica com segurança com uma API ASP.NET Core via JWT, sincronizando os registros de voo e dados da frota apenas quando uma conexão de internet estável é detectada.
-* **Manipulação de Grandes Volumes de Dados:** Estrutura de banco de dados altamente otimizada para consultar instantaneamente mais de **4.000 registros oficiais de aeródromos da ANAC** sem travar a interface do usuário (UI thread).
+### 1. Arquitetura Offline-First e Segurança de Nível Militar
+A aviação exige softwares que funcionem perfeitamente em modo avião ou em hangares remotos. O LogbookApp implementa uma camada de dados local altamente segura:
+* **SQLite Local com Criptografia AES:** O banco de dados no dispositivo é totalmente criptografado usando chaves de sessão dinâmicas, protegendo os dados sensíveis do piloto e impedindo a extração local não autorizada.
+* **Derivação de Chaves PBKDF2 e Biometria:** O acesso local é protegido por um PIN com hash PBKDF2 de 100.000 iterações e autenticação biométrica nativa (Impressão Digital/FaceID).
+* **Sincronização Bidirecional em Nuvem:** Um serviço resiliente em segundo plano (`SyncService`) comunica-se de forma segura com uma API ASP.NET Core via JWT, sincronizando diários de voo e dados da frota silenciosamente quando uma conexão estável é detectada.
+* **Zero Bloqueio de Interface (UI):** Operações assíncronas de busca e CRUD usando padrões MVVM estritos garantem uma interface fluida independentemente da carga do banco de dados.
 
-### 2. Engenharia Aeronáutica & Algoritmos Físicos
-* **Motor Dinâmico de Peso e Balanceamento (W&B):** Calcula o Centro de Gravidade (CG) em tempo real com base em estações personalizáveis (passageiros/carga) e no envelope específico da aeronave. Inclui alertas visuais de MTOW (Peso Máximo de Decolagem) para evitar decolagens com sobrepeso.
-* **Controle Técnico de Manutenção (CTM) Inteligente:** Monitora automaticamente as horas totais da célula em relação aos gatilhos de revisão, sinalizando visualmente o status da aeronave (Disponível, Alerta de Manutenção ou AOG/Grounded) no hangar digital.
-* **Fórmula de Haversine & Planejamento de Voo:** Utiliza métricas de performance da aeronave (velocidade de cruzeiro) e distâncias esféricas exatas entre coordenadas ICAO para fornecer tempos de voo estimados em tempo real.
-* **Tradutor de METAR:** Busca dados meteorológicos brutos de APIs externas e os converte em formatos decodificados e de fácil leitura para uma rápida avaliação na linha de voo.
+### 2. Engenharia Aeronáutica e Algoritmos Físicos
+* **Motor Dinâmico de Peso e Balanceamento (W&B):** Calcula o Centro de Gravidade (CG) em tempo real com base em estações de passageiros/carga personalizáveis e no envelope específico da aeronave. Inclui avisos visuais de MTOW (Peso Máximo de Decolagem) para evitar sobrecarga estrutural.
+* **Controle Inteligente de Manutenção (CTM):** Monitora automaticamente o total de horas da célula da aeronave em relação aos gatilhos de revisão de 50h/100h, sinalizando visualmente o status da aeronave (Disponível, Alerta de Manutenção ou Aterrada/AOG).
+* **Fórmula de Haversine e Planejamento de Voo:** Usa métricas de performance da aeronave e distâncias esféricas exatas entre coordenadas ICAO para fornecer tempos de voo estimados em tempo real e cálculos de Proa Verdadeira.
+* **Divisão Automática Diurno/Noturno:** Integra-se à API Sunrise-Sunset para calcular automaticamente a divisão exata das horas de voo diurnas e noturnas com base em coordenadas geográficas e no horário de decolagem.
 
-### 3. Gestos Nativos, UX & Relatórios Oficiais
-* **Geração com QuestPDF:** Inclui manipulação nativa de streams utilizando o motor QuestPDF para exportar relatórios de Logbook (Caderneta Individual de Voo - CIV) com precisão de pixels no padrão exigido pela ANAC, diretamente do dispositivo.
-* **Interação de Alta Fidelidade:** Implementa gestos de deslizar (swipe) para excluir/editar baseados em física com sensação nativa na lista principal, fornecendo feedback imediato e fluido ao usuário.
-* **Captura de Dados Rica:** Possui captura de assinatura digital para endossos de instrutores e fotografia de recibos no próprio dispositivo.
+### 3. Automação e Integrações de IA
+* **Scanner OCR de Tacômetro:** Utiliza o `Plugin.Maui.OCR` para extrair horas de voo diretamente do painel físico da aeronave pela câmera do dispositivo, eliminando a entrada manual de dados.
+* **Compartilhamento de Voo por QR Code:** Os pilotos podem compartilhar diários de voo complexos instantaneamente de forma *offline* usando *payloads* JSON gerados localmente e codificados em QR Codes.
+* **Importação de Escalas .ics:** Um *parser* customizado que lê escalas mensais corporativas (arquivos iCalendar), extraindo automaticamente códigos ICAO, datas e horários para criar planos de voo em lote.
+* **Tradutor de METAR:** Busca *strings* meteorológicas brutas de APIs externas e as converte em formatos decodificados e de fácil leitura (Vento, Temperatura, QNH) para avaliações rápidas na linha de voo.
 
-### 4. Segurança de Nível Corporativo & Auditoria Não Destrutiva (Compliance ANAC)
-A segurança e a integridade dos dados são tratadas como pilares arquiteturais. Um princípio central é a **manipulação não destrutiva de dados**.
-* **Trilha de Auditoria "Caixa Preta":** O sistema utiliza **soft-deletes** e mantém um 'Log de Auditoria' dedicado. Todos os dados originais de voo permanecem preservados no dispositivo e na nuvem para compliance de auditoria da ANAC, independentemente das modificações feitas pelo piloto.
-* **Justificativa de Edição Obrigatória:** Um fluxo de 'Edição' não pode ser finalizado até que o piloto insira uma justificativa, garantindo uma trilha de alterações clara e auditável para cada registro assinado que for modificado.
-* **Sanitização de Entradas:** Validação rigorosa de entradas e sanitização algorítmica são aplicadas em todos os formulários para prevenir ataques de injeção e garantir a integridade do banco de dados.
+### 4. Telemetria, UX Nativa e Monetização
+* **HUD de Mapa Tático:** Uma `MapPage` customizada apresentando uma sobreposição translúcida estilo *Glass Cockpit*, renderizando rotas de voo singulares ou um mapa de calor global de toda a carreira do piloto utilizando blocos de aviação OpenAIP personalizados.
+* **Dashboards com Microcharts:** Renderiza gráficos dinâmicos de rosca e barras de forma nativa usando SkiaSharp para visualizar métricas operacionais (VFR/IFR, Noturno/Diurno) e dados financeiros (Diárias, Custos de Combustível).
+* **Serviço de Entitlement (Paywall):** Uma arquitetura de interceptação contínua que protege recursos *premium* por trás de um modelo de assinatura SaaS, maximizando a conversão por meio de uma estratégia de "Armadilha de Valor".
+
+### 5. Auditoria de Nível Corporativo e Compliance (ANAC/FAA)
+* **Geração de PDF com QuestPDF:** Manipulação nativa de *streams* utilizando o motor QuestPDF para exportar Relatórios de Diário de Bordo (CIV) padrão ANAC e Currículos de Voo profissionais, com precisão de pixels, diretamente do dispositivo.
+* **Trilha de Auditoria "Caixa Preta":** O sistema utiliza exclusões lógicas (**soft-deletes**) e mantém um 'Log de Auditoria' dedicado. Todos os dados originais do voo permanecem preservados no dispositivo e na nuvem para *compliance* de auditoria, independentemente das modificações do piloto.
+* **Captura de Dados Enriquecida:** Apresenta captura de assinatura digital para endossos de instrutores e fotografia de recibos no próprio dispositivo para despesas de combustível/taxas.
+* **Sanitização de Entradas:** Forte validação de entrada e sanitização algorítmica são aplicadas em todos os formulários para prevenir ataques de injeção e garantir a integridade do banco de dados.
 
 ## Stack Tecnológico
-**Frontend (Mobile App):**
-* **Framework:** .NET MAUI / C# / XAML
-* **Arquitetura:** MVVM rigoroso (Model-View-ViewModel)
-* **Banco de Dados Local:** SQLite Criptografado (AES)
-* **Relatórios:** QuestPDF
+**Frontend (Mobile SaaS):**
+* **Framework:** .NET 8 / MAUI / C# / XAML
+* **Arquitetura:** MVVM Estrito (Model-View-ViewModel)
+* **Banco de Dados Local:** SQLite-net-sqlcipher Criptografado
+* **Integrações de Hardware:** Biometria, Câmera (OCR/QR), Geolocalização, SecureStorage
+* **UI/UX:** Microcharts (SkiaSharp), ZXing, QuestPDF
+* **Plataformas Alvo:** Android, iOS (Multiplataforma)
 
-**Backend (Cloud SaaS):**
+**Backend (Cloud Sync & API):**
 * **Framework:** ASP.NET Core Web API
 * **ORM:** Entity Framework Core (EF Core)
 * **Banco de Dados:** PostgreSQL
-* **Segurança:** Autenticação JWT, Hashing de Senhas com BCrypt
+* **Segurança:** Autenticação JWT, Hashing de Senha BCrypt
 
-**Engenharia de Dados:**
-* **Geoespacial:** Algoritmos de Haversine
-* **Pipeline:** Apache Hop & Python para importação de dados aeronáuticos oficiais da ANAC
+## Showcase de Fluxo de Trabalho e Arquitetura
 
-## Demonstração de Fluxo de Trabalho & Arquitetura
-
-*(Este primeiro GIF demonstra a jornada completa do usuário e a arquitetura de auditoria. Ele começa com o login seguro na nuvem e validação de PIN, passa pela configuração inicial do piloto e da aeronave, e mostra a inteligência da criação de um novo voo — apresentando preenchimento automático, busca de METAR em tempo real, cálculos automáticos de Haversine e captura de assinatura. Ele conclui destacando os gestos de deslizar de alta fidelidade e o recurso de auditoria não destrutiva "Caixa Preta", onde as edições exigem uma justificativa em conformidade com a ANAC e as exclusões são arquivadas com segurança em segundo plano.)*
+*(Este primeiro GIF demonstra a jornada completa do usuário e a arquitetura de auditoria. Começa com o login seguro na nuvem e a validação do PIN, segue pela configuração inicial do piloto e aeronave, e mostra a inteligência da criação de um novo voo — apresentando preenchimento automático, busca em tempo real de METAR, cálculos automáticos de Haversine e captura de assinatura. Conclui destacando os gestos de deslize de alta fidelidade e a funcionalidade de auditoria "Caixa Preta" não-destrutiva, onde as edições exigem uma justificativa compatível com a ANAC e as exclusões são arquivadas com segurança em segundo plano.)*
 
 ![recording-2026-04-07-16-01-32](https://github.com/user-attachments/assets/f53fafc2-5980-4f24-af9b-77d9c096ac13)
 
-
-*(Este segundo GIF foca inteiramente no Dashboard interativo e no motor de relatórios. Ele destaca a agregação em tempo real de métricas de voo e estatísticas financeiras. Também demonstra como os pilotos podem selecionar intervalos de datas específicos para gerar instantaneamente e exportar relatórios em PDF formatados diretamente do armazenamento local do dispositivo.)*
+*(Este segundo GIF foca inteiramente no Dashboard interativo e no motor de relatórios. Destaca a agregação em tempo real de métricas de voo e estatísticas financeiras. Também demonstra como os pilotos podem selecionar intervalos de datas específicos para gerar e exportar instantaneamente relatórios PDF formatados diretamente do armazenamento local do dispositivo.)*
 
 ![recording-2026-04-07-16-04-41](https://github.com/user-attachments/assets/bdb59b6f-cf4f-4666-9bc2-73bcee572175)
 
-
 ## Status Atual de Desenvolvimento
-- [x] **Fase 1: MVP Offline Core** - Banco de dados, CRUD, UI/UX e cálculos geoespaciais.
-- [x] **Fase 2: Relatórios PDF no Dispositivo** - Geração de relatórios PDF oficiais usando QuestPDF.
-- [x] **Fase 3: Camada SaaS & Sincronização em Nuvem** - Sincronização bidirecional, autenticação JWT e implementação do backend em PostgreSQL.
-- [x] **Fase 4: Integração de Física da Aviação** - Calculadora dinâmica de Peso e Balanceamento (W&B) e rastreamento de Manutenção (CTM).
-- [ ] **Fase 5: Expansão de Features & Monetização** - Níveis de assinatura corporativa e algoritmos automáticos de divisão diurno/noturno.
+- [x] **Fase 1: MVP Offline Principal** - Banco de dados, CRUD, UI/UX em MVVM e cálculos de Haversine.
+- [x] **Fase 2: Física de Aviação** - Peso e Balanceamento Dinâmico (CG), rastreamento de Manutenção (CTM) e divisão automática de Diurno/Noturno.
+- [x] **Fase 3: Automação e Telemetria** - Scanner OCR de Tacômetro, compartilhamento por QR Code, importação de escalas corporativas `.ics` e Mapas Táticos em HUD.
+- [x] **Fase 4: Camada SaaS e Sincronização em Nuvem** - Serviço de acesso Paywall, segurança com PBKDF2/Biometria e sincronização bidirecional em segundo plano.
+- [x] **Fase 5: Relatórios Oficiais** - Geração no dispositivo de relatórios PDF e CVs padrão ANAC usando QuestPDF com assinaturas digitais.
+- [ ] **Fase 6: Reformulação de UI/UX e Lançamento** - Redesign visual e implantação na App Store / Google Play.
 
-## Contato & Oportunidades
-Sou um Engenheiro de Software especializado em .NET MAUI, C# e arquiteturas de sistemas auditáveis. Atualmente estou aberto a oportunidades remotas internacionais ou parcerias estratégicas para este produto.
+## Contato e Oportunidades
+Para avaliações técnicas, demonstrações ao vivo ou dúvidas sobre parcerias estratégicas e licenciamento, por favor, entre em contato diretamente. Estou aberto a explorar integrações de software em nível corporativo e oportunidades de desenvolvimento remoto.
 
-* **LinkedIn:** https://www.linkedin.com/in/jordan-fabian/
-* **Email:** jordanmaycon@gmail.com
+
+jordanmaycon@gmail.com
